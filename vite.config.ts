@@ -17,9 +17,9 @@ export default defineConfig(({ command, mode }) => {
 			port: 80,
 			proxy: {
 				"/api": {
-					target: "https://mich-man.ru/api",
+					target: "https://mich-man.ru",
 					changeOrigin: true,
-					rewrite: (path) => path.replace(/^\/api/, ""),
+					secure: false,
 				},
 			},
 		},

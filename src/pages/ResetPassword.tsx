@@ -1,62 +1,52 @@
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import { Box, Button, Container, FormControl, TextField, Typography } from "@mui/material";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { grey } from "@mui/material/colors";
-import { Link, useNavigate } from "react-router-dom";
-import { useSignupMutation } from "@/app/api";
-import { LoginWithSocials } from "@/components/LoginWithSocials/LoginWithSocials";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { useResetPasswordMutation } from "@/app/api";
 import { useEffect } from "react";
-import { useAppDispatch } from "@/app/hooks/hooks";
-import { setVerifyEmail } from "@/features/auth/authSlice";
 
 type Inputs = {
-	email: string;
 	password: string;
 	confirmPassword: string;
 };
-export const Signup = () => {
-	const dispatch = useAppDispatch();
-	const [signup, { isLoading, isSuccess }] = useSignupMutation();
+
+export const ResetPassword = () => {
+	const navigate = useNavigate();
+	const [reset, { isLoading, isSuccess }] = useResetPasswordMutation();
+	const [params] = useSearchParams();
+	console.log(params);
 	const {
 		register,
 		handleSubmit,
 		watch,
 		formState: { errors },
+		getValues,
 	} = useForm<Inputs>();
-	const navigate = useNavigate();
-
 	const onSubmit: SubmitHandler<Inputs> = (data) => {
-		signup(data);
-		dispatch(setVerifyEmail(data.email));
+		const token = params.get("token");
+		if (token) reset({ ...data, token });
 	};
 
 	useEffect(() => {
 		if (isSuccess) {
-			navigate("/verify-email");
+			setTimeout(() => {
+				navigate("/login");
+			}, 1500);
 		}
 	}, [isSuccess]);
+
 	return (
 		<Box bgcolor={grey[200]} sx={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
 			<Container sx={{ display: "flex", justifyContent: "center" }}>
 				<Box bgcolor="white" borderRadius={2} sx={{ padding: 3, maxWidth: 550, width: "100%" }}>
 					<Typography variant="h5" mb={3}>
-						Регистрация
+						Сброс пароля
 					</Typography>
 					<form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%", display: "flex", flexDirection: "column", gap: 3 }}>
-						<TextField
-							error={!!errors.email}
-							label="Email"
-							autoComplete="false"
-							type="text"
-							helperText={errors?.email?.message}
-							required
-							{...register("email", {
-								required: "Поле обязательно для заполнения.",
-								pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Введите валидный Email" },
-							})}
-						/>
+						{/* register your input into the hook by invoking the "register" function */}
 						<TextField
 							error={!!errors.password}
-							label="Введите пароль"
+							label="Введите новый пароль"
 							autoComplete="false"
 							type="password"
 							helperText={errors?.password?.message}
@@ -75,10 +65,14 @@ export const Signup = () => {
 							autoComplete="false"
 							type="password"
 							helperText={errors?.confirmPassword?.message}
+							required
 							{...register("confirmPassword", {
 								required: "Поле обязательно для заполнения.",
 								validate: (val: string) => {
-									if (watch("password") !== val) {
+									const { password } = getValues();
+
+									console.log(password, val);
+									if (password !== val) {
 										return "Пароли не совпадают";
 									}
 								},
@@ -86,21 +80,20 @@ export const Signup = () => {
 						/>
 
 						<Button type="submit" loading={isLoading} variant="contained">
-							Зарегистрироваться
+							Отправить
 						</Button>
 					</form>
-					<LoginWithSocials />
+
 					<Box marginTop={3} display="flex" gap={2} alignItems="center" justifyContent="space-between">
 						<Typography variant="subtitle2">
-							Забыли пароль?{" "}
-							<Link className="link" to="/forgot-password">
-								Восстановить
+							<Link className="link" to="/login">
+								Авторизация
 							</Link>
 						</Typography>
 						<Typography variant="subtitle2">
-							Есть аккаунт?{" "}
-							<Link className="link" to="/login">
-								Войти
+							Нет аккаунта?{" "}
+							<Link className="link" to="/signup">
+								Зарегистрироваться
 							</Link>
 						</Typography>
 					</Box>

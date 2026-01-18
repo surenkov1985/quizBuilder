@@ -1,24 +1,55 @@
-import { Box, Button, Container, FormControl, TextField, Typography } from "@mui/material";
+import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { grey } from "@mui/material/colors";
-import { IoLogoGoogle } from "react-icons/io";
-import { FaYandex } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useLazyMeQuery, useLoginMutation } from "@/app/api";
+import { LoginWithSocials } from "@/components/LoginWithSocials/LoginWithSocials";
+import { useEffect } from "react";
+import { useAppDispatch } from "@/app/hooks/hooks";
+import { setAccess, setInited, setUser, setVerifyEmail } from "@/features/auth/authSlice";
 
 type Inputs = {
 	email: string;
 	password: string;
 };
 export const LoginPage = () => {
+	const [onLogin, { isLoading, isSuccess, isError, error, data }] = useLoginMutation();
+	const [meQuery, meData] = useLazyMeQuery();
+
 	const {
 		register,
 		handleSubmit,
-		watch,
 		formState: { errors },
 	} = useForm<Inputs>();
-	const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+	const navigate = useNavigate();
+	const dispatch = useAppDispatch();
 
-	console.log(watch("email"));
+	useEffect(() => {
+		if (data) {
+			meQuery().then((res) => {
+				if (res.data) {
+					dispatch(setUser(res.data));
+					dispatch(setAccess(data.access));
+					dispatch(setInited());
+					navigate("/");
+				}
+			});
+		}
+	}, [isSuccess]);
+
+	useEffect(() => {
+		if (isError) {
+			if ("data" in error) {
+				const data = error.data as { error?: string; email?: string };
+				if (data.error && data.error === "EMAIL_NOT_VERIFIED") {
+					dispatch(setVerifyEmail(data.email!));
+					navigate("/verify-email");
+				}
+			}
+		}
+	}, [isError]);
+
+	const onSubmit: SubmitHandler<Inputs> = (data) => onLogin(data);
 	return (
 		<Box bgcolor={grey[200]} sx={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
 			<Container sx={{ display: "flex", justifyContent: "center" }}>
@@ -26,41 +57,44 @@ export const LoginPage = () => {
 					<Typography variant="h5" mb={3}>
 						Авторизация
 					</Typography>
-					<FormControl onSubmit={handleSubmit(onSubmit)} sx={{ width: "100%", display: "flex", direction: "column", gap: 3 }}>
-						{/* register your input into the hook by invoking the "register" function */}
+					<form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%", display: "flex", flexDirection: "column", gap: 3 }}>
 						<TextField
 							error={!!errors.email}
 							label="Email"
 							autoComplete="false"
-							type="email"
+							type="text"
+							helperText={errors?.email?.message}
 							required
-							{...register("email", { required: true, pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/ })}
+							{...register("email", {
+								required: "Поле обязательно для заполнения.",
+								pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Введите валидный Email" },
+							})}
 						/>
-						{errors.email && <span>This field is required</span>}
-						{/* include validation with required or other standard HTML validation rules */}
-						<TextField type="password" label="Password" autoComplete="false" {...register("password", { required: true })} />
-						{/* errors will return when field validation fails  */}
-						{errors.password && <span>This field is required</span>}
+						<TextField
+							error={!!errors.password}
+							label="Введите пароль"
+							autoComplete="false"
+							type="password"
+							helperText={errors?.password?.message}
+							required
+							{...register("password", {
+								required: "Поле обязательно для заполнения.",
+								pattern: {
+									value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/,
+									message: "Пароль должен содержать строчные буквы, заглавные буквы, цифры, символы",
+								},
+							})}
+						/>
 
-						<Button type="submit" variant="contained">
+						<Button loading={isLoading} type="submit" variant="contained">
 							Войти
 						</Button>
-					</FormControl>
-					<Box marginTop={3} display="flex" gap={2} alignItems="center">
-						<Typography variant="subtitle2" component="p">
-							Войти с помощью:
-						</Typography>
-						<Button variant="outlined" size="medium">
-							<IoLogoGoogle size={24} />
-						</Button>
-						<Button variant="outlined" size="medium">
-							<FaYandex size={24} />
-						</Button>
-					</Box>
+					</form>
+					<LoginWithSocials />
 					<Box marginTop={3} display="flex" gap={2} alignItems="center" justifyContent="space-between">
 						<Typography variant="subtitle2">
 							Забыли пароль?{" "}
-							<Link className="link" to="/signup">
+							<Link className="link" to="/forgot-password">
 								Восстановить
 							</Link>
 						</Typography>

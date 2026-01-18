@@ -8,9 +8,12 @@ import { store } from "./app/store.ts";
 import { Provider } from "react-redux";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./router.tsx";
+import { AuthInit } from "./components/AuthInit.tsx";
 
 createRoot(document.getElementById("root")!).render(
 	<Provider store={store}>
-		<RouterProvider router={router} />
+		<AuthInit>
+			<RouterProvider router={router} />
+		</AuthInit>
 	</Provider>,
 );
