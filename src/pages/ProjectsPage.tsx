@@ -1,5 +1,4 @@
 import { useProjectsQuery } from "@/app/api";
-import React from "react";
 
 export const ProjectsPage = () => {
 	const res = useProjectsQuery();

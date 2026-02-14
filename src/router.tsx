@@ -7,6 +7,8 @@ import { Signup } from "./pages/Signup";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
 import { VerufyEmail } from "./pages/VerifyEmail";
+import { OauthCallback } from "./pages/OauthCallback";
+import { OauthCallbackVk } from "./pages/OauthCallbackVk";
 
 const Protected = ({ children }: any) => {
 	const { data, isLoading } = useMeQuery();
@@ -35,6 +37,8 @@ const routes: RouteObject[] = [
 	{ path: "/forgot-password", element: <ForgotPassword /> },
 	{ path: "/reset-password", element: <ResetPassword /> },
 	{ path: "/verify-email", element: <VerufyEmail /> },
+	{ path: "/oauth/callback", element: <OauthCallback /> },
+	{ path: "/oauth/callback/vk", element: <OauthCallbackVk /> },
 ];
 
 export const router = createBrowserRouter(routes);
