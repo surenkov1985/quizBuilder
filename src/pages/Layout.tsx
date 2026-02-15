@@ -16,7 +16,6 @@ export const Layout = () => {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const user = useAppSelector((state) => state.auth.user);
-	console.log(user);
 
 	const handleLogout = async () => {
 		await apiLogout();
@@ -27,7 +26,6 @@ export const Layout = () => {
 	const menu = [
 		{ label: "Проекты", path: "/" },
 		{ label: "Профиль", path: "/profile" },
-		{ label: "Подписка", path: "/billing" },
 	];
 
 	const drawer = (
@@ -102,7 +100,12 @@ export const Layout = () => {
 						SaaS Dashboard
 					</Typography>
 					<Box display="flex" gap={3}>
-						{user && (user.avatar ? <Avatar src={user.avatar} /> : <Avatar {...stringAvatar(user?.name)} />)}
+						{user &&
+							(user.avatar ? (
+								<Avatar src={user.avatar} onClick={() => navigate("/profile")} sx={{ cursor: "pointer" }} />
+							) : (
+								<Avatar {...stringAvatar(user?.name)} />
+							))}
 						<IconButton color="inherit" onClick={handleLogout}>
 							<LogoutIcon />
 						</IconButton>

@@ -9,6 +9,11 @@ import { ResetPassword } from "./pages/ResetPassword";
 import { VerufyEmail } from "./pages/VerifyEmail";
 import { OauthCallback } from "./pages/OauthCallback";
 import { OauthCallbackVk } from "./pages/OauthCallbackVk";
+import { ProjectDetail } from "./pages/ProjectDetail";
+import { FormEditorPage } from "./features/form-editor/FormEditorPage";
+import { ProjectsLayout } from "./pages/ProjectsLayout";
+import { ProfilePage } from "./pages/ProfilePage";
+import { ErrorPage } from "./pages/ErrorPage";
 
 const Protected = ({ children }: any) => {
 	const { data, isLoading } = useMeQuery();
@@ -30,6 +35,32 @@ const routes: RouteObject[] = [
 					</Protected>
 				),
 			},
+			{
+				path: "profile/",
+				element: (
+					<Protected>
+						<ProfilePage />
+					</Protected>
+				),
+			},
+			{
+				path: "projects/:id",
+				element: (
+					<Protected>
+						<ProjectsLayout />
+					</Protected>
+				),
+				children: [
+					{
+						index: true,
+						element: <ProjectDetail />,
+					},
+					{
+						path: "forms/:formId",
+						element: <FormEditorPage />,
+					},
+				],
+			},
 		],
 	},
 	{ path: "/login", element: <LoginPage /> },
@@ -39,6 +70,7 @@ const routes: RouteObject[] = [
 	{ path: "/verify-email", element: <VerufyEmail /> },
 	{ path: "/oauth/callback", element: <OauthCallback /> },
 	{ path: "/oauth/callback/vk", element: <OauthCallbackVk /> },
+	{ path: "*", element: <ErrorPage /> },
 ];
 
 export const router = createBrowserRouter(routes);
