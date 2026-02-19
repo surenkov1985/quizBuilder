@@ -1,27 +1,27 @@
-import type { QuestionType, FormState } from "./types";
+import type { QuestionType, FormState, Question } from "./types";
 
 type Action =
-	| { type: "SET_TITLE"; payload: string }
-	| { type: "ADD_QUESTION"; payload: { questionType: QuestionType; title: string } }
-	| { type: "REMOVE_QUESTION"; payload: { id: string } }
-	| { type: "UPDATE_QUESTION_TITLE"; payload: { id: string; title: string } };
+	| { type: "SET_TITLE"; title: string }
+	| { type: "ADD_QUESTION"; id: string; questionType: QuestionType; title: string }
+	| { type: "REMOVE_QUESTION"; id: string }
+	| { type: "UPDATE_QUESTION_TITLE"; id: string; title: string };
 
 export const formReducer = (state: FormState, action: Action): FormState => {
 	switch (action.type) {
 		case "SET_TITLE":
 			return {
 				...state,
-				title: action.payload,
+				title: action.title,
 			};
 
 		case "ADD_QUESTION":
 			const newQuestion = {
 				id: crypto.randomUUID(),
-				type: action.payload.questionType,
-				title: action.payload.title,
+				type: action.questionType,
+				title: action.title,
 				required: false,
-				...(action.payload.questionType !== "text" && {
-					options: [{ id: crypto.randomUUID(), label: "Option 1" }],
+				...(action.questionType !== "text" && {
+					options: [{ id: action.id, label: "Option 1" }],
 				}),
 			};
 			return {
@@ -32,15 +32,18 @@ export const formReducer = (state: FormState, action: Action): FormState => {
 		case "REMOVE_QUESTION":
 			return {
 				...state,
-				questions: state.questions.filter((q) => q.id !== action.payload.id),
+				questions: state.questions.filter((q) => q.id !== action.id),
 			};
 
 		case "UPDATE_QUESTION_TITLE":
 			return {
 				...state,
-				questions: state.questions.map((q) => (q.id === action.payload.id ? { ...q, title: action.payload.title } : q)),
+				questions: updateQuestions(state.questions, action.id, (q) => ({ ...q, title: action.title })),
 			};
 		default:
 			return state;
 	}
 };
+
+const updateQuestions = (questions: Question[], id: string, updater: (g: Question) => Question) =>
+	questions.map((q) => (q.id === id ? updater(q) : q));

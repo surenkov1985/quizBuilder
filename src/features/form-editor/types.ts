@@ -19,4 +19,4 @@ type FormState = {
 	questions: Question[];
 };
 
-export { type QuestionType, type Option, type Question, type FormState };
+export type { QuestionType, Option, Question, FormState };

@@ -83,7 +83,13 @@ export const ProjectDetail = () => {
 					</form>
 				</DialogContent>
 				<DialogActions>
-					<Button type="submit" form="subscription-form">
+					<Button
+						type="submit"
+						form="subscription-form"
+						onClick={(e) => {
+							console.log(e);
+						}}
+					>
 						Создать
 					</Button>
 				</DialogActions>

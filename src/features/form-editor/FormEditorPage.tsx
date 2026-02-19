@@ -2,10 +2,18 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useFormEditor } from "./useFormEditor";
 import { QuestionCard } from "./components/QuestionCard";
+import { useEffect, useState } from "react";
+import { AddQuestionForm } from "./components/AddQuestionForm";
 
 export const FormEditorPage = () => {
 	const { id, formId } = useParams<{ id: string; formId: string }>();
-	const { form, dispatch } = useFormEditor();
+	const { form, removeQuestion, setTitle, addQuestion, updateQuestionTitle } = useFormEditor();
+
+	const [formTitle, setFormTitle] = useState(form.title);
+
+	useEffect(() => {
+		setFormTitle(form.title);
+	}, [form.title]);
 
 	if (!id || !formId)
 		return (
@@ -13,14 +21,25 @@ export const FormEditorPage = () => {
 				<Typography variant="h6">Форма не найдена</Typography>
 			</Box>
 		);
-	console.log(form);
+	const changeFormName = () => {
+		if (formTitle.trim()) {
+			setTitle(formTitle);
+			setFormTitle("");
+		}
+	};
+	const addQuestionHandler = (title: string) => {
+		if (title.trim()) addQuestion("text", title);
+	};
 	return (
 		<Box maxWidth="800px">
 			<Typography mb={2} variant="h6">
 				Редактирование формы {formId}
 			</Typography>
-			<Box mb={2}>
-				<TextField label="Название формы" fullWidth />
+			<Box mb={2} display="flex" gap={2}>
+				<TextField value={formTitle} label="Название формы" sx={{ flexGrow: 1 }} onChange={(e) => setFormTitle(e.target.value)} />
+				<Button variant="outlined" onClick={changeFormName}>
+					Изменить
+				</Button>
 			</Box>
 			<Box>
 				<Typography variant="h6" mb={2}>
@@ -28,40 +47,18 @@ export const FormEditorPage = () => {
 				</Typography>
 			</Box>
 			<Box>
-				<TextField label="Form Name" value={form.title} onChange={(e) => dispatch({ type: "SET_TITLE", payload: e.target.value })} />
-				<Button
-					variant="outlined"
-					onClick={() =>
-						dispatch({
-							type: "ADD_QUESTION",
-							payload: { questionType: "text", title: "New Question" },
-						})
-					}
-				>
-					Добавить вопрос
-				</Button>
+				<AddQuestionForm addQuestion={addQuestionHandler} />
 			</Box>
 			{form.questions.map((q) => {
 				return (
 					<QuestionCard
 						key={q.id}
 						question={q}
-						updateTitle={(title) =>
-							dispatch({
-								type: "UPDATE_QUESTION_TITLE",
-								payload: { id: q.id, title },
-							})
-						}
-						onDelete={() =>
-							dispatch({
-								type: "REMOVE_QUESTION",
-								payload: { id: q.id },
-							})
-						}
+						updateTitle={(title) => updateQuestionTitle(q.id, title)}
+						onDelete={() => removeQuestion(q.id)}
 					/>
 				);
 			})}
-			<Button variant="contained">Добавить вопрос</Button>
 		</Box>
 	);
 };

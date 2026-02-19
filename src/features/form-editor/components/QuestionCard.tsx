@@ -1,6 +1,8 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, IconButton, TextField, Typography } from "@mui/material";
 import type { Question } from "../types";
-import { memo } from "react";
+import CloseIcon from "@mui/icons-material/Close";
+import DoneIcon from "@mui/icons-material/Done";
+import { memo, useState, type KeyboardEvent } from "react";
 
 type Props = {
 	question: Question;
@@ -8,13 +10,38 @@ type Props = {
 	onDelete: () => void;
 };
 export const QuestionCard = memo(({ question, updateTitle, onDelete }: Props) => {
-	return (
-		<Box mb={2} p={2} border="1px solid #ddd" borderRadius={2}>
-			<TextField fullWidth value={question.title} onChange={(e) => updateTitle(e.target.value)} />
+	const [isRead, setIsRead] = useState<boolean>(false);
+	const [newTitle, setNewTitle] = useState<string>(question.title);
 
-			<Button color="error" onClick={onDelete} sx={{ mt: 1 }}>
-				Delete
-			</Button>
+	const onUpdateTitle = () => {
+		updateTitle(newTitle);
+		setIsRead(false);
+	};
+	const onPressEnter = (e: KeyboardEvent<HTMLInputElement>) => {
+		if (e.key == "Enter") {
+			onUpdateTitle();
+		}
+	};
+	return (
+		<Box mb={2} p={2} border="1px solid #ddd" display="flex" borderRadius={2}>
+			{isRead ? (
+				<>
+					<TextField autoFocus fullWidth value={newTitle} onChange={(e) => setNewTitle(e.target.value)} onKeyDown={onPressEnter} />
+
+					<IconButton onClick={onUpdateTitle} color="success">
+						<DoneIcon />
+					</IconButton>
+				</>
+			) : (
+				<>
+					<Button variant="text" onDoubleClick={() => setIsRead(true)}>
+						<Typography variant="body2">{newTitle}</Typography>
+					</Button>
+					<IconButton onClick={onDelete} color="error">
+						<CloseIcon />
+					</IconButton>
+				</>
+			)}
 		</Box>
 	);
 });
