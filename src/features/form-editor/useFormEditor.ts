@@ -15,7 +15,7 @@ export const useFormEditor = () => {
 		dispatch({ type: "SET_TITLE", title });
 	};
 	const addQuestion = (questionType: QuestionType, title: string) => {
-		dispatch({ type: "ADD_QUESTION", id: crypto.randomUUID(), questionType, title });
+		dispatch({ type: "ADD_QUESTION", id: crypto.randomUUID(), questionType, title, required: false, description: "" });
 	};
 	const updateQuestionTitle = (id: string, title: string) => {
 		dispatch({
@@ -31,11 +31,28 @@ export const useFormEditor = () => {
 		});
 	};
 
+	const toggleQuestionRequired = (id: string) => {
+		dispatch({
+			type: "TOGGLE_REQUIRED",
+			id,
+		});
+	};
+
+	const updateQuestionDescription = (id: string, description: string) => {
+		dispatch({
+			type: "UPDATE_QUESTION_DESCRIPTION",
+			id,
+			description,
+		});
+	};
+
 	return {
 		form: state,
 		setTitle,
 		addQuestion,
 		updateQuestionTitle,
 		removeQuestion,
+		toggleQuestionRequired,
+		updateQuestionDescription,
 	};
 };

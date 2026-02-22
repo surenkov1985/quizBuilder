@@ -2,9 +2,11 @@ import type { QuestionType, FormState, Question } from "./types";
 
 type Action =
 	| { type: "SET_TITLE"; title: string }
-	| { type: "ADD_QUESTION"; id: string; questionType: QuestionType; title: string }
+	| { type: "ADD_QUESTION"; id: string; questionType: QuestionType; title: string; required: boolean; description: string }
 	| { type: "REMOVE_QUESTION"; id: string }
-	| { type: "UPDATE_QUESTION_TITLE"; id: string; title: string };
+	| { type: "UPDATE_QUESTION_TITLE"; id: string; title: string }
+	| { type: "TOGGLE_REQUIRED"; id: string }
+	| { type: "UPDATE_QUESTION_DESCRIPTION"; id: string; description: string };
 
 export const formReducer = (state: FormState, action: Action): FormState => {
 	switch (action.type) {
@@ -19,9 +21,10 @@ export const formReducer = (state: FormState, action: Action): FormState => {
 				id: crypto.randomUUID(),
 				type: action.questionType,
 				title: action.title,
-				required: false,
+				required: action.required,
+				description: action.description,
 				...(action.questionType !== "text" && {
-					options: [{ id: action.id, label: "Option 1" }],
+					options: [{ id: action.id, label: "Question", required: false }],
 				}),
 			};
 			return {
@@ -39,6 +42,16 @@ export const formReducer = (state: FormState, action: Action): FormState => {
 			return {
 				...state,
 				questions: updateQuestions(state.questions, action.id, (q) => ({ ...q, title: action.title })),
+			};
+		case "TOGGLE_REQUIRED":
+			return {
+				...state,
+				questions: updateQuestions(state.questions, action.id, (q) => ({ ...q, required: !q.required })),
+			};
+		case "UPDATE_QUESTION_DESCRIPTION":
+			return {
+				...state,
+				questions: updateQuestions(state.questions, action.id, (q) => ({ ...q, description: action.description })),
 			};
 		default:
 			return state;

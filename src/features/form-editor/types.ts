@@ -10,6 +10,7 @@ type Question = {
 	type: QuestionType;
 	title: string;
 	required: boolean;
+	description: string;
 	options?: Option[];
 };
 
