@@ -11,6 +11,11 @@ type Question = {
 	title: string;
 	required: boolean;
 	description: string;
+	placeholder: string;
+	minLength?: number;
+	maxLength?: number;
+	multiline: boolean;
+	rows?: number;
 	options?: Option[];
 };
 

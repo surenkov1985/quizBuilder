@@ -7,7 +7,20 @@ import { AddQuestionForm } from "./components/AddQuestionForm";
 
 export const FormEditorPage = () => {
 	const { id, formId } = useParams<{ id: string; formId: string }>();
-	const { form, removeQuestion, setTitle, addQuestion, updateQuestionTitle, toggleQuestionRequired, updateQuestionDescription } = useFormEditor();
+	const {
+		form,
+		removeQuestion,
+		setTitle,
+		addQuestion,
+		updateQuestionTitle,
+		toggleQuestionRequired,
+		updateQuestionDescription,
+		updateQuestionPlaceholder,
+		updateQuestionMinlength,
+		updateQuestionMaxlength,
+		toggleIsMultilinedQuestion,
+		updateQuestionRows,
+	} = useFormEditor();
 
 	const [formTitle, setFormTitle] = useState(form.title);
 
@@ -58,6 +71,11 @@ export const FormEditorPage = () => {
 						onDelete={() => removeQuestion(q.id)}
 						toggleRequired={() => toggleQuestionRequired(q.id)}
 						updateDescription={updateQuestionDescription}
+						updatePlaceholder={updateQuestionPlaceholder}
+						updateMinLength={updateQuestionMinlength}
+						updateMaxLength={updateQuestionMaxlength}
+						toggleIsMultilined={() => toggleIsMultilinedQuestion(q.id)}
+						updateRows={updateQuestionRows}
 					/>
 				);
 			})}

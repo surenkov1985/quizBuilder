@@ -1,7 +1,7 @@
-import { Box, Button, Container, FormControl, TextField, Typography } from "@mui/material";
+import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { grey } from "@mui/material/colors";
-import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useResetPasswordMutation } from "@/app/api";
 import { useEffect } from "react";
 
@@ -18,7 +18,6 @@ export const ResetPassword = () => {
 	const {
 		register,
 		handleSubmit,
-		watch,
 		formState: { errors },
 		getValues,
 	} = useForm<Inputs>();

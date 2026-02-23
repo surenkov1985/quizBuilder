@@ -9,7 +9,7 @@ export const VerufyEmail = () => {
 	const navigate = useNavigate();
 	const [cooldown, setCooldown] = useState(0);
 	const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-	const [verifyEmail, { isLoading, isSuccess, isError, error }] = useVerifyEmailMutation();
+	const [verifyEmail, { isSuccess, isError, error }] = useVerifyEmailMutation();
 	const verifyEmailString = useAppSelector((state) => state.auth.verifyEmail);
 
 	useEffect(() => {

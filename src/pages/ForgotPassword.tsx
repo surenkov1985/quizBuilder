@@ -1,9 +1,9 @@
-import { Alert, Box, Button, Container, Fade, FormControl, SvgIcon, TextField, Typography } from "@mui/material";
+import { Box, Button, Container, Fade, SvgIcon, TextField, Typography } from "@mui/material";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { grey } from "@mui/material/colors";
 import { Link } from "react-router-dom";
 import { useForgotPasswordMutation } from "@/app/api";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 type Inputs = {
 	email: string;

@@ -14,7 +14,7 @@ type Inputs = {
 };
 export const LoginPage = () => {
 	const [onLogin, { isLoading, isSuccess, isError, error, data }] = useLoginMutation();
-	const [meQuery, meData] = useLazyMeQuery();
+	const [meQuery] = useLazyMeQuery();
 
 	const {
 		register,

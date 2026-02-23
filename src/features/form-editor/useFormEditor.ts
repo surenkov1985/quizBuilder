@@ -15,7 +15,16 @@ export const useFormEditor = () => {
 		dispatch({ type: "SET_TITLE", title });
 	};
 	const addQuestion = (questionType: QuestionType, title: string) => {
-		dispatch({ type: "ADD_QUESTION", id: crypto.randomUUID(), questionType, title, required: false, description: "" });
+		dispatch({
+			type: "ADD_QUESTION",
+			id: crypto.randomUUID(),
+			questionType,
+			title,
+			required: false,
+			description: "",
+			placeholder: "",
+			multiline: false,
+		});
 	};
 	const updateQuestionTitle = (id: string, title: string) => {
 		dispatch({
@@ -46,6 +55,45 @@ export const useFormEditor = () => {
 		});
 	};
 
+	const updateQuestionPlaceholder = (id: string, placeholder: string) => {
+		dispatch({
+			type: "UPDATE_QUESTION_PLACEHOLDER",
+			id,
+			placeholder,
+		});
+	};
+
+	const updateQuestionMinlength = (id: string, minLength: number) => {
+		dispatch({
+			type: "UPDATE_QUESTION_MINLENGTH",
+			id,
+			minLength,
+		});
+	};
+
+	const updateQuestionMaxlength = (id: string, maxLength: number) => {
+		dispatch({
+			type: "UPDATE_QUESTION_MAXLENGTH",
+			id,
+			maxLength,
+		});
+	};
+
+	const toggleIsMultilinedQuestion = (id: string) => {
+		dispatch({
+			type: "TOGGLE_IS_MULTILINED",
+			id,
+		});
+	};
+
+	const updateQuestionRows = (id: string, rows: number) => {
+		dispatch({
+			type: "UPDATE_ROWS_LENGTH",
+			id,
+			rows,
+		});
+	};
+
 	return {
 		form: state,
 		setTitle,
@@ -54,5 +102,10 @@ export const useFormEditor = () => {
 		removeQuestion,
 		toggleQuestionRequired,
 		updateQuestionDescription,
+		updateQuestionPlaceholder,
+		updateQuestionMinlength,
+		updateQuestionMaxlength,
+		toggleIsMultilinedQuestion,
+		updateQuestionRows,
 	};
 };

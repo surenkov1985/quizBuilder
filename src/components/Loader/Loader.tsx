@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Container } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { grey } from "@mui/material/colors";
 
 export const Loader = () => {

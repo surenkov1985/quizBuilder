@@ -1,5 +1,5 @@
 import { Box, Button, TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type Prors = {
 	addQuestion: (title: string) => void;
