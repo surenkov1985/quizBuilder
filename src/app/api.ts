@@ -8,6 +8,7 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import { setAccess, logout } from "../features/auth/authSlice";
 import type { CreateProjectRequest, ForgotPasswordResponse, LoginRequest, LoginResponse, MeResponse, Project, ResetPasswordResponse } from "./types";
+import type { FormState } from "@/features/form-editor/types";
 
 type RefreshResult = QueryReturnValue<any, FetchBaseQueryError>;
 
@@ -48,6 +49,7 @@ const baseQueryWithRefresh: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQu
 export const api = createApi({
 	reducerPath: "api",
 	baseQuery: baseQueryWithRefresh,
+	tagTypes: ["FormList"],
 	endpoints: (build) => ({
 		signup: build.mutation<void, LoginRequest>({
 			query: (body) => ({
@@ -103,6 +105,21 @@ export const api = createApi({
 				body,
 			}),
 		}),
+		getForms: build.query<FormState[], { projectId: string }>({
+			query: ({ projectId }) => ({
+				url: `/projects/${projectId}/forms/`,
+				method: "GET",
+			}),
+			providesTags: ["FormList"],
+		}),
+		createForm: build.mutation<FormState, { projectId: string; form: FormState }>({
+			query: ({ projectId, form }) => ({
+				url: `/projects/${projectId}/forms`,
+				method: "POST",
+				body: form,
+			}),
+			invalidatesTags: ["FormList"],
+		}),
 	}),
 });
 
@@ -117,4 +134,7 @@ export const {
 	useResetPasswordMutation,
 	useVerifyEmailMutation,
 	useLazyMeQuery,
+	useGetFormsQuery,
+	useLazyGetFormsQuery,
+	useCreateFormMutation,
 } = api;

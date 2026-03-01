@@ -1,6 +1,6 @@
 import { useReducer } from "react";
 import { formReducer } from "./questionsReduser";
-import type { FormState, QuestionType } from "./types";
+import type { FormState, Question, QuestionType } from "./types";
 
 const initialFormState: FormState = {
 	id: crypto.randomUUID(),
@@ -26,13 +26,6 @@ export const useFormEditor = () => {
 			multiline: false,
 		});
 	};
-	const updateQuestionTitle = (id: string, title: string) => {
-		dispatch({
-			type: "UPDATE_QUESTION_TITLE",
-			id,
-			title,
-		});
-	};
 	const removeQuestion = (id: string) => {
 		dispatch({
 			type: "REMOVE_QUESTION",
@@ -40,72 +33,34 @@ export const useFormEditor = () => {
 		});
 	};
 
-	const toggleQuestionRequired = (id: string) => {
+	const updateQuestionField = <K extends keyof Question>(id: string, field: K, value: Question[K]) => {
 		dispatch({
-			type: "TOGGLE_REQUIRED",
+			type: "UPDATE_QUESTION_FIELD",
 			id,
+			field,
+			value,
 		});
 	};
 
-	const updateQuestionDescription = (id: string, description: string) => {
-		dispatch({
-			type: "UPDATE_QUESTION_DESCRIPTION",
-			id,
-			description,
-		});
+	const addOption = (questionId: string) => {
+		dispatch({ type: "ADD_OPTION", questionId });
 	};
 
-	const updateQuestionPlaceholder = (id: string, placeholder: string) => {
-		dispatch({
-			type: "UPDATE_QUESTION_PLACEHOLDER",
-			id,
-			placeholder,
-		});
+	const updateOptionLabel = (questionId: string, id: string, label: string) => {
+		dispatch({ type: "UPDATE_OPTION_LABEL", questionId, id, label });
 	};
-
-	const updateQuestionMinlength = (id: string, minLength: number) => {
-		dispatch({
-			type: "UPDATE_QUESTION_MINLENGTH",
-			id,
-			minLength,
-		});
-	};
-
-	const updateQuestionMaxlength = (id: string, maxLength: number) => {
-		dispatch({
-			type: "UPDATE_QUESTION_MAXLENGTH",
-			id,
-			maxLength,
-		});
-	};
-
-	const toggleIsMultilinedQuestion = (id: string) => {
-		dispatch({
-			type: "TOGGLE_IS_MULTILINED",
-			id,
-		});
-	};
-
-	const updateQuestionRows = (id: string, rows: number) => {
-		dispatch({
-			type: "UPDATE_ROWS_LENGTH",
-			id,
-			rows,
-		});
+	const deleteOption = (questionId: string, id: string) => {
+		dispatch({ type: "DELETE_OPTION", questionId, id });
 	};
 
 	return {
 		form: state,
 		setTitle,
 		addQuestion,
-		updateQuestionTitle,
 		removeQuestion,
-		toggleQuestionRequired,
-		updateQuestionDescription,
-		updateQuestionPlaceholder,
-		updateQuestionMinlength,
-		updateQuestionMaxlength,
-		toggleIsMultilinedQuestion,
-		updateQuestionRows,
+		updateQuestionField,
+		addOption,
+		updateOptionLabel,
+		deleteOption,
 	};
 };

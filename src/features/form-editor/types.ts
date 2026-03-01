@@ -1,23 +1,32 @@
-type QuestionType = "text" | "single" | "multiple";
+type QuestionType = "text" | "single";
 
 type Option = {
 	id: string;
 	label: string;
 };
 
-type Question = {
-	id: string;
-	type: QuestionType;
-	title: string;
-	required: boolean;
-	description: string;
+type TextQuestion = BaseQuestion & {
+	type: "text";
 	placeholder: string;
 	minLength?: number;
 	maxLength?: number;
 	multiline: boolean;
 	rows?: number;
-	options?: Option[];
 };
+
+type SingleQuestion = BaseQuestion & {
+	type: "single";
+	options: Option[];
+};
+
+type BaseQuestion = {
+	id: string;
+	title: string;
+	required: boolean;
+	description: string;
+};
+
+type Question = TextQuestion | SingleQuestion;
 
 type FormState = {
 	id: string;
@@ -25,4 +34,4 @@ type FormState = {
 	questions: Question[];
 };
 
-export type { QuestionType, Option, Question, FormState };
+export type { QuestionType, Option, TextQuestion, SingleQuestion, Question, FormState };

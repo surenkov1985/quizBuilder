@@ -1,5 +1,11 @@
-import { act } from "react";
 import type { QuestionType, FormState, Question } from "./types";
+
+type UpdateQuestionFieldAction<K extends keyof Question = keyof Question> = {
+	type: "UPDATE_QUESTION_FIELD";
+	id: string;
+	field: K;
+	value: Question[K];
+};
 
 type Action =
 	| { type: "SET_TITLE"; title: string }
@@ -17,14 +23,10 @@ type Action =
 			rows?: number;
 	  }
 	| { type: "REMOVE_QUESTION"; id: string }
-	| { type: "UPDATE_QUESTION_TITLE"; id: string; title: string }
-	| { type: "TOGGLE_REQUIRED"; id: string }
-	| { type: "UPDATE_QUESTION_DESCRIPTION"; id: string; description: string }
-	| { type: "UPDATE_QUESTION_PLACEHOLDER"; id: string; placeholder: string }
-	| { type: "UPDATE_QUESTION_MINLENGTH"; id: string; minLength: number }
-	| { type: "UPDATE_QUESTION_MAXLENGTH"; id: string; maxLength: number }
-	| { type: "TOGGLE_IS_MULTILINED"; id: string }
-	| { type: "UPDATE_ROWS_LENGTH"; id: string; rows: number };
+	| UpdateQuestionFieldAction
+	| { type: "ADD_OPTION"; questionId: string }
+	| { type: "UPDATE_OPTION_LABEL"; questionId: string; id: string; label: string }
+	| { type: "DELETE_OPTION"; questionId: string; id: string };
 
 export const formReducer = (state: FormState, action: Action): FormState => {
 	switch (action.type) {
@@ -35,21 +37,46 @@ export const formReducer = (state: FormState, action: Action): FormState => {
 			};
 
 		case "ADD_QUESTION":
-			const newQuestion = {
-				id: crypto.randomUUID(),
-				type: action.questionType,
-				title: action.title,
-				required: action.required,
-				description: action.description,
-				placeholder: action.placeholder,
-				minLength: action.minLength,
-				maxLength: action.maxLength,
-				multiline: action.multiline,
-				rows: action.rows,
-				...(action.questionType !== "text" && {
-					options: [{ id: action.id, label: "Question", required: false }],
-				}),
-			};
+			let newQuestion: Question;
+
+			if (action.questionType === "text") {
+				newQuestion = {
+					id: crypto.randomUUID(),
+					type: "text",
+					title: action.title,
+					required: false,
+					description: "",
+					placeholder: "",
+					multiline: false,
+					minLength: undefined,
+					maxLength: undefined,
+					rows: undefined,
+				};
+			} else {
+				newQuestion = {
+					id: crypto.randomUUID(),
+					type: "single",
+					title: action.title,
+					required: false,
+					description: "",
+					options: [{ id: crypto.randomUUID(), label: "Option" }],
+				};
+			}
+			// const newQuestion = {
+			// 	id: crypto.randomUUID(),
+			// 	type: action.questionType,
+			// 	title: action.title,
+			// 	required: action.required,
+			// 	description: action.description,
+			// 	placeholder: action.placeholder,
+			// 	minLength: action.minLength,
+			// 	maxLength: action.maxLength,
+			// 	multiline: action.multiline,
+			// 	rows: action.rows,
+			// 	...(action.questionType !== "text" && {
+			// 		options: [{ id: action.id, label: "Question", required: false }],
+			// 	}),
+			// };
 			return {
 				...state,
 				questions: [...state.questions, newQuestion],
@@ -60,46 +87,62 @@ export const formReducer = (state: FormState, action: Action): FormState => {
 				...state,
 				questions: state.questions.filter((q) => q.id !== action.id),
 			};
-
-		case "UPDATE_QUESTION_TITLE":
+		case "UPDATE_QUESTION_FIELD":
 			return {
 				...state,
-				questions: updateQuestions(state.questions, action.id, (q) => ({ ...q, title: action.title })),
+				questions: updateQuestions(state.questions, action.id, (q) => ({ ...q, [action.field]: action.value })),
 			};
-		case "TOGGLE_REQUIRED":
+		case "ADD_OPTION":
 			return {
 				...state,
-				questions: updateQuestions(state.questions, action.id, (q) => ({ ...q, required: !q.required })),
+				questions: state.questions.map((q) => {
+					if (q.id !== action.questionId) return q;
+					if (q.type === "single") {
+						return {
+							...q,
+							options: [...q.options, { id: crypto.randomUUID(), label: "" }],
+						};
+					}
+					return q;
+				}),
 			};
-		case "UPDATE_QUESTION_DESCRIPTION":
+		case "UPDATE_OPTION_LABEL":
 			return {
 				...state,
-				questions: updateQuestions(state.questions, action.id, (q) => ({ ...q, description: action.description })),
+				questions: state.questions.map((q) => {
+					if (q.id !== action.questionId) return q;
+					if (q.type === "single") {
+						return {
+							...q,
+							options: q.options.map((opt) => {
+								if (opt.id === action.id)
+									return {
+										...opt,
+										label: action.label,
+									};
+								return opt;
+							}),
+						};
+					}
+					return q;
+				}),
 			};
-		case "UPDATE_QUESTION_PLACEHOLDER":
+		case "DELETE_OPTION":
 			return {
 				...state,
-				questions: updateQuestions(state.questions, action.id, (q) => ({ ...q, placeholder: action.placeholder })),
-			};
-		case "UPDATE_QUESTION_MINLENGTH":
-			return {
-				...state,
-				questions: updateQuestions(state.questions, action.id, (q) => ({ ...q, minLength: action.minLength })),
-			};
-		case "UPDATE_QUESTION_MAXLENGTH":
-			return {
-				...state,
-				questions: updateQuestions(state.questions, action.id, (q) => ({ ...q, maxLength: action.maxLength })),
-			};
-		case "TOGGLE_IS_MULTILINED":
-			return {
-				...state,
-				questions: updateQuestions(state.questions, action.id, (q) => ({ ...q, multiline: !q.multiline })),
-			};
-		case "UPDATE_ROWS_LENGTH":
-			return {
-				...state,
-				questions: updateQuestions(state.questions, action.id, (q) => ({ ...q, rows: action.rows })),
+				questions: state.questions.map((q) => {
+					if (q.id !== action.questionId) return q;
+					if (q.type === "single") {
+						return {
+							...q,
+							options: q.options.filter((opt) => {
+								if (q.options.length <= 1) return q;
+								return opt.id !== action.id;
+							}),
+						};
+					}
+					return q;
+				}),
 			};
 		default:
 			return state;

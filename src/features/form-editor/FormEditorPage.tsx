@@ -4,23 +4,11 @@ import { useFormEditor } from "./useFormEditor";
 import { QuestionCard } from "./components/QuestionCard";
 import { useEffect, useState } from "react";
 import { AddQuestionForm } from "./components/AddQuestionForm";
+import type { QuestionType } from "./types";
 
 export const FormEditorPage = () => {
 	const { id, formId } = useParams<{ id: string; formId: string }>();
-	const {
-		form,
-		removeQuestion,
-		setTitle,
-		addQuestion,
-		updateQuestionTitle,
-		toggleQuestionRequired,
-		updateQuestionDescription,
-		updateQuestionPlaceholder,
-		updateQuestionMinlength,
-		updateQuestionMaxlength,
-		toggleIsMultilinedQuestion,
-		updateQuestionRows,
-	} = useFormEditor();
+	const { form, removeQuestion, setTitle, addQuestion, updateQuestionField, addOption, updateOptionLabel, deleteOption } = useFormEditor();
 
 	const [formTitle, setFormTitle] = useState(form.title);
 
@@ -40,8 +28,11 @@ export const FormEditorPage = () => {
 			setFormTitle("");
 		}
 	};
-	const addQuestionHandler = (title: string) => {
-		if (title.trim()) addQuestion("text", title);
+	const addQuestionHandler = (title: string, type: QuestionType) => {
+		if (title.trim()) addQuestion(type, title);
+	};
+	const updateQuestion = (id: string, field: any, value: any) => {
+		updateQuestionField(id, field, value);
 	};
 	return (
 		<Box maxWidth="800px">
@@ -62,23 +53,21 @@ export const FormEditorPage = () => {
 			<Box>
 				<AddQuestionForm addQuestion={addQuestionHandler} />
 			</Box>
-			{form.questions.map((q) => {
-				return (
-					<QuestionCard
-						key={q.id}
-						question={q}
-						updateTitle={(title) => updateQuestionTitle(q.id, title)}
-						onDelete={() => removeQuestion(q.id)}
-						toggleRequired={() => toggleQuestionRequired(q.id)}
-						updateDescription={updateQuestionDescription}
-						updatePlaceholder={updateQuestionPlaceholder}
-						updateMinLength={updateQuestionMinlength}
-						updateMaxLength={updateQuestionMaxlength}
-						toggleIsMultilined={() => toggleIsMultilinedQuestion(q.id)}
-						updateRows={updateQuestionRows}
-					/>
-				);
-			})}
+			<Box display="flex" flexDirection="column" gap={3}>
+				{form.questions.map((q) => {
+					return (
+						<QuestionCard
+							key={q.id}
+							question={q}
+							updateQuestion={updateQuestionField}
+							onDelete={() => removeQuestion(q.id)}
+							addOption={addOption}
+							updateOptionLabel={updateOptionLabel}
+							deleteOption={deleteOption}
+						/>
+					);
+				})}
+			</Box>
 		</Box>
 	);
 };
